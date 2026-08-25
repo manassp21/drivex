@@ -1,0 +1,18 @@
+# Go
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
+backend/*.exe
+backend/tmp/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+
+# Env files
+.env
+*.env
+backend/.env
+
+# OS
+.DS_Store
+Thumbs.db

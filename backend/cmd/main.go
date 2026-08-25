@@ -1,26 +1,40 @@
 package main
 
-import(
-	"net/http"
-	"fmt"
+import (
+	"context"
 	"log"
-
-	"github.com/manassp21/drivex/routes"
+	"net/http"
+	"os"
+	"github.com/joho/godotenv"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/manassp21/drivex/backend/database"
+	"github.com/manassp21/drivex/backend/routes"
 )
 
-func main(){
+func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("no .env file found, using system environment variables")
+	}
 
-	fmt.Println("Loading config...")
+	ctx := context.Background()
+	connString := os.Getenv("DATABASE_URL")
+	if connString == "" {
+		log.Fatal("DATABASE_URL environment variable is not set")
+	}
 
-	fmt.Println("Connecting to Database...")
-	
-	r := routes.SetupRoutes()
+	pool, err := pgxpool.New(ctx, connString)
+	if err != nil {
+		log.Fatal("failed to connect to database:", err)
+	}
+	defer pool.Close()
 
-	port := ":8080"
-	fmt.Println("Server starting on port", port)
+	database.DB = pool
+	log.Println("connected to drivex db")
 
-	err := http.ListenAndServe(port, r)
-	if(err!=nil){
-		log.Fatal("Server failed to start...")
+	r := routes.NewRouter()
+
+	log.Println("server starting on :8080")
+	if err := http.ListenAndServe(":8080", r); err != nil {
+		log.Fatal("server failed:", err)
 	}
 }
