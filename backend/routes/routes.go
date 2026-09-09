@@ -3,7 +3,6 @@
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
@@ -12,11 +11,16 @@ import (
 	authmw "github.com/manassp21/drivex/backend/internal/middleware"
 	"github.com/manassp21/drivex/backend/internal/models"
 	"github.com/google/uuid"
-	"path/filepath"
 	"io"
 	"log"
+	"strings"
+
+	"github.com/manassp21/drivex/backend/internal/storage"
+	"github.com/manassp21/drivex/backend/internal/middleware"
 
 )
+
+var fileStorage storage.Storage
 
 type RegisterRequest struct {
 	Email    string `json:"email"`
@@ -33,8 +37,11 @@ type LoginResponse struct {
 	Token string       `json:"token"`
 }
 
-func NewRouter() *chi.Mux {
+func NewRouter(store storage.Storage) *chi.Mux {
+	fileStorage = store
 	r := chi.NewRouter()
+
+	r.Use(middleware.RateLimit)
 
 	r.Use(chimw.Logger)
 	r.Use(chimw.Recoverer)
@@ -42,7 +49,7 @@ func NewRouter() *chi.Mux {
 	r.Get("/health", healthHandler)
 
 	r.Route("/api/users", func(r chi.Router) {
-		r.Post("/register", registerUser)
+		r.Post("/register", RegisterUser)
 		r.Post("/login", loginUser)
 		r.Get("/{id}", getUser)
 	})
@@ -74,12 +81,23 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("ok"))
 }
 
-func registerUser(w http.ResponseWriter, r *http.Request) {
+func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	var req RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
+
+	if len(req.Password) < 8{
+		http.Error(w, "password must contain atleast  characters", http.StatusBadRequest)
+		return
+	}
+
+	if !strings.Contains(req.Email, "@") {
+    	http.Error(w, "invalid email", http.StatusBadRequest)
+    	return
+	}
+
 	ctx := r.Context()
 	pwHash, err := auth.HashPassword(req.Password)
 	if err != nil {
@@ -247,6 +265,12 @@ func uploadFile(w http.ResponseWriter, r *http.Request)   {
 		return
 	}
 
+	r.Body = http.MaxBytesReader(w, r.Body, 25<<20) // 25 MB
+	if err := r.ParseMultipartForm(25 << 20); err != nil {
+		http.Error(w, "file too large", http.StatusRequestEntityTooLarge)
+	    return
+	}
+
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
 		http.Error(w, "could not parse form", http.StatusBadRequest)
 		return
@@ -265,32 +289,20 @@ func uploadFile(w http.ResponseWriter, r *http.Request)   {
 	}
 
 	storageKey := uuid.NewString() + "_" + header.Filename
-	destPath := filepath.Join("storage", "uploads", storageKey)
-
-	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
-		http.Error(w, "failed to prepare storage", http.StatusInternalServerError)
-		return
-	}
-
-	dest, err := os.Create(destPath)
-	if err != nil {
-		http.Error(w, "failed to save file", http.StatusInternalServerError)
-		return
-	}
-	defer dest.Close()
-
-	size, err := io.Copy(dest, file)
-	if err != nil {
-		http.Error(w, "failed to write file", http.StatusInternalServerError)
-		return
-	}
 
 	mimeType := header.Header.Get("Content-Type")
 	if mimeType == "" {
 		mimeType = "application/octet-stream"
 	}
 
-	fileRecord, err := database.CreateFile(r.Context(), header.Filename, ownerID, folderID, size, mimeType, storageKey)
+	if err := fileStorage.Upload(r.Context(), storageKey, file, header.Size, mimeType); err != nil {
+		log.Println("s3 upload error:", err)
+		http.Error(w, "failed to save file", http.StatusInternalServerError)
+		return
+	}
+
+	fileRecord, err := database.CreateFile(r.Context(), header.Filename, ownerID, folderID, header.Size, mimeType, storageKey)
+
 	if err != nil {
 		http.Error(w, "failed to save file record", http.StatusInternalServerError)
 		return
@@ -320,17 +332,18 @@ func downloadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path := filepath.Join("storage", "uploads", file.StorageKey)
-	f, err := os.Open(path)
+		body, err := fileStorage.Download(r.Context(), file.StorageKey)
 	if err != nil {
+		log.Println("s3 download error:", err)
 		http.Error(w, "file missing from storage", http.StatusInternalServerError)
 		return
 	}
-	defer f.Close()
+	defer body.Close()
 
 	w.Header().Set("Content-Disposition", "attachment; filename=\""+file.Name+"\"")
 	w.Header().Set("Content-Type", file.MimeType)
-	io.Copy(w, f)
+	io.Copy(w, body)
+
 }
 
 func deleteFile(w http.ResponseWriter, r *http.Request) {
@@ -347,7 +360,9 @@ func deleteFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = os.Remove(filepath.Join("storage", "uploads", file.StorageKey))
+	if err := fileStorage.Delete(r.Context(), file.StorageKey); err != nil {
+		log.Println("s3 delete error:", err)
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 }
