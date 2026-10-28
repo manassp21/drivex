@@ -14,7 +14,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
-          path="/home"
+          path="/home/:folderID?"
           element={
             <ProtectedRoute>
               <Home />

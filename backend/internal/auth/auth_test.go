@@ -16,7 +16,7 @@ func TestHashAndComparePassword(t *testing.T) {
         t.Error("expected password to match its hash")
     }
 
-	a = ComparePassword(hash, "wrongpassword") 
+	a = ComparePassword("wrongpassword", hash) 
     if a == nil {
         t.Error("expected wrong password to not match")
     }

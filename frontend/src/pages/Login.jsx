@@ -1,3 +1,4 @@
+import './Auth.css';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -31,31 +32,51 @@ function Login() {
   }
 
   return (
-    <div style={{ maxWidth: 300, margin: '80px auto', fontFamily: 'sans-serif' }}>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email</label><br />
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+    <div className="dx-auth">
+      <div className="dx-auth-card">
+        <div className="dx-auth-brand">
+          <span className="dx-auth-logo">D</span>
+          DriveX
         </div>
-        <div style={{ marginTop: 10 }}>
-          <label>Password</label><br />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit" style={{ marginTop: 10 }}>Log In</button>
-      </form>
-      <p style={{ marginTop: 10 }}>
-        No account? <Link to="/register">Register</Link>
-      </p>
+        <h1 className="dx-auth-title">Log in</h1>
+        <p className="dx-auth-sub">Welcome back to your drive.</p>
+
+        {error && (
+          <p className="dx-auth-error" role="alert">
+            {error}
+          </p>
+        )}
+
+        <form className="dx-auth-form" onSubmit={handleSubmit}>
+          <label className="dx-field">
+            Email
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+            />
+          </label>
+          <label className="dx-field">
+            Password
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          </label>
+          <button type="submit" className="dx-auth-btn">
+            Log in
+          </button>
+        </form>
+
+        <p className="dx-auth-switch">
+          New here? <Link to="/register">Create an account</Link>
+        </p>
+      </div>
     </div>
   );
 }

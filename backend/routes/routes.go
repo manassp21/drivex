@@ -105,11 +105,6 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-//	user, err := database.CreateUser(ctx, req.Email, pwHash)
-//	if err != nil {
-//		http.Error(w, "internal server error", http.StatusInternalServerError)
-//		return
-//	}
 
 user, err := database.CreateUser(ctx, req.Email, pwHash)
 if err != nil {
@@ -188,6 +183,7 @@ func createFolder(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to create folder", http.StatusInternalServerError)
 		return
 	}
+
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

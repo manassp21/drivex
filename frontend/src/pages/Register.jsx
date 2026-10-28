@@ -1,3 +1,4 @@
+import './Auth.css';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -29,31 +30,51 @@ function Register() {
   }
 
   return (
-    <div style={{ maxWidth: 300, margin: '80px auto', fontFamily: 'sans-serif' }}>
-      <h1>Register</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email</label><br />
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+    <div className="dx-auth">
+      <div className="dx-auth-card">
+        <div className="dx-auth-brand">
+          <span className="dx-auth-logo">D</span>
+          DriveX
         </div>
-        <div style={{ marginTop: 10 }}>
-          <label>Password</label><br />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit" style={{ marginTop: 10 }}>Register</button>
-      </form>
-      <p style={{ marginTop: 10 }}>
-        Already have an account? <Link to="/login">Log in</Link>
-      </p>
+        <h1 className="dx-auth-title">Create your account</h1>
+        <p className="dx-auth-sub">Store and organize your files in one place.</p>
+
+        {error && (
+          <p className="dx-auth-error" role="alert">
+            {error}
+          </p>
+        )}
+
+        <form className="dx-auth-form" onSubmit={handleSubmit}>
+          <label className="dx-field">
+            Email
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+            />
+          </label>
+          <label className="dx-field">
+            Password
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+              required
+            />
+          </label>
+          <button type="submit" className="dx-auth-btn">
+            Create account
+          </button>
+        </form>
+
+        <p className="dx-auth-switch">
+          Already have an account? <Link to="/login">Log in</Link>
+        </p>
+      </div>
     </div>
   );
 }

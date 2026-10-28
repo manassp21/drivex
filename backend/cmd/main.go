@@ -5,16 +5,17 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"github.com/joho/godotenv"
+
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	"github.com/manassp21/drivex/backend/database"
-	"github.com/manassp21/drivex/backend/routes"
 	"github.com/manassp21/drivex/backend/internal/storage"
+	"github.com/manassp21/drivex/backend/routes"
 )
 
 func main() {
-	
-	if err := godotenv.Load("backend/.env"); err != nil {
+
+	if err := godotenv.Load(".env"); err != nil {
 		log.Println("no .env file found, using system environment variables")
 	}
 
@@ -22,7 +23,7 @@ func main() {
 
 	bucket := os.Getenv("S3_BUCKET")
 	if bucket == "" {
-    	log.Fatal("S3_BUCKET environment variable is not set")
+		log.Fatal("S3_BUCKET environment variable is not set")
 	}
 
 	store, err := storage.NewS3Storage(ctx, bucket)
@@ -46,7 +47,6 @@ func main() {
 
 	database.DB = pool
 	log.Println("connected to drivex db")
-
 
 	log.Println("server starting on :8080")
 	if err := http.ListenAndServe(":8080", r); err != nil {

@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -73,7 +74,7 @@ func CreateFolder(ctx context.Context, name, ownerID string, parentID *string) (
 func GetFolder(ctx context.Context, id string) (*models.Folder, error) {
 	folder := &models.Folder{}
 	err := DB.QueryRow(ctx,
-		"SELECT id, name, owner_id, parent_id, created_at FROM folders WHERE id = $1",
+		"SELECT id, name, owner_id, parent_id, created_at FROM folders WHERE id = $1 AND deleted_at = NULL",
 		id,
 	).Scan(&folder.ID, &folder.Name, &folder.OwnerID, &folder.ParentID, &folder.CreatedAt)
 
@@ -87,7 +88,7 @@ func GetFolder(ctx context.Context, id string) (*models.Folder, error) {
 }
 
 func ListFolders(ctx context.Context, ownerID string, parentID *string) ([]*models.Folder, error) {
-	query := "SELECT id, name, owner_id, parent_id, created_at FROM folders WHERE owner_id = $1"
+	query := "SELECT id, name, owner_id, parent_id, created_at FROM folders WHERE owner_id = $1 AND deleted_at IS NULL"
 	var args []interface{}
 	args = append(args, ownerID)
 
@@ -119,7 +120,7 @@ func ListFolders(ctx context.Context, ownerID string, parentID *string) ([]*mode
 }
 
 func DeleteFolder(ctx context.Context, id string) error {
-	result, err := DB.Exec(ctx, "DELETE FROM folders WHERE id = $1", id)
+	result, err := DB.Exec(ctx, "UPDATE folders SET deleted_at = now() WHERE id = $1", id)
 	if err != nil {
 		return err
 	}
@@ -133,6 +134,7 @@ func DeleteFolder(ctx context.Context, id string) error {
 
 
 func CreateFile(ctx context.Context, name, ownerID string, folderID *string, sizeBytes int64, mimeType, storageKey string) (*models.File, error) {
+	fmt.Printf("createfiles is running")
 	file := &models.File{}
 	err := DB.QueryRow(ctx,
 		"INSERT INTO files (name, owner_id, folder_id, size_bytes, mime_type, storage_key) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, owner_id, folder_id, size_bytes, mime_type, storage_key, created_at, updated_at",
@@ -148,7 +150,7 @@ func CreateFile(ctx context.Context, name, ownerID string, folderID *string, siz
 func GetFile(ctx context.Context, id string) (*models.File, error) {
 	file := &models.File{}
 	err := DB.QueryRow(ctx,
-		"SELECT id, name, owner_id, folder_id, size_bytes, mime_type, storage_key, created_at, updated_at FROM files WHERE id = $1",
+		"SELECT id, name, owner_id, folder_id, size_bytes, mime_type, storage_key, created_at, updated_at FROM files WHERE id = $1 AND deleted_at = NULL",
 		id,
 	).Scan(&file.ID, &file.Name, &file.OwnerID, &file.FolderID, &file.SizeBytes, &file.MimeType, &file.StorageKey, &file.CreatedAt, &file.UpdatedAt)
 
@@ -162,7 +164,7 @@ func GetFile(ctx context.Context, id string) (*models.File, error) {
 }
 
 func ListFiles(ctx context.Context, ownerID string, folderID *string) ([]*models.File, error) {
-	query := "SELECT id, name, owner_id, folder_id, size_bytes, mime_type, storage_key, created_at, updated_at FROM files WHERE owner_id = $1"
+	query := "SELECT id, name, owner_id, folder_id, size_bytes, mime_type, storage_key, created_at, updated_at FROM files WHERE owner_id = $1 AND deleted_at IS NULL"
 	var args []interface{}
 	args = append(args, ownerID)
 

@@ -1,0 +1,392 @@
+/* Zero-specificity resets so the .dx-* classes below always win */
+:where(.dx-page) *,
+:where(.dx-page) *::before,
+:where(.dx-page) *::after {
+  box-sizing: border-box;
+}
+:where(.dx-page) button {
+  font-family: inherit;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+:where(.dx-page) h2 {
+  margin: 0;
+}
+
+.dx-page {
+  min-height: 100vh;
+  background: #f5f6f8;
+  color: #1b2130;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  text-align: left;
+}
+
+/* ---------- top bar ---------- */
+.dx-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid #e4e7ec;
+}
+.dx-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.dx-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* ---------- layout ---------- */
+.dx-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+}
+.dx-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.dx-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ---------- breadcrumb ---------- */
+.dx-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 19px;
+  font-weight: 600;
+  min-width: 0;
+}
+.dx-crumb {
+  font-size: inherit;
+  font-weight: inherit;
+  padding: 4px 8px;
+  border-radius: 8px;
+  color: #475467;
+}
+.dx-crumb:hover {
+  background: #e9ecf1;
+}
+.dx-sep {
+  color: #98a2b3;
+}
+.dx-crumb-current {
+  padding: 4px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- buttons and inputs ---------- */
+.dx-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.dx-btn-primary {
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+.dx-btn-primary:hover {
+  background: #1d4ed8;
+}
+.dx-btn-primary.is-busy {
+  opacity: 0.7;
+  pointer-events: none;
+}
+.dx-btn-secondary {
+  background: #fff;
+  border-color: #d0d5dd;
+  color: #1b2130;
+}
+.dx-btn-secondary:hover {
+  background: #f2f4f7;
+}
+.dx-btn-ghost {
+  color: #475467;
+}
+.dx-btn-ghost:hover {
+  background: #eef0f4;
+}
+.dx-btn-small {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+  background: #fff;
+  border-color: #d0d5dd;
+  color: #1b2130;
+}
+.dx-btn-small:hover {
+  background: #f2f4f7;
+}
+
+.dx-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: #667085;
+  font-size: 18px;
+  transition: background-color 0.15s, color 0.15s;
+}
+.dx-icon-btn:hover {
+  background: #eef0f4;
+  color: #1b2130;
+}
+.dx-icon-btn.dx-danger:hover {
+  background: #fdecea;
+  color: #d92d20;
+}
+
+.dx-newfolder {
+  display: flex;
+  gap: 8px;
+}
+.dx-newfolder input {
+  height: 38px;
+  width: 180px;
+  padding: 0 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  color: inherit;
+}
+.dx-newfolder input::placeholder {
+  color: #98a2b3;
+}
+
+.dx-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.dx-btn:focus-visible,
+.dx-btn:focus-within,
+.dx-icon-btn:focus-visible,
+.dx-crumb:focus-visible,
+.dx-folder-open:focus-visible,
+.dx-newfolder input:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* ---------- messages ---------- */
+.dx-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  border: 1px solid #f5c2bd;
+  border-radius: 8px;
+  background: #fdecea;
+  color: #912018;
+  font-size: 14px;
+}
+.dx-error button {
+  font-size: 20px;
+  line-height: 1;
+}
+.dx-muted {
+  color: #667085;
+}
+.dx-empty {
+  margin-top: 8px;
+  padding: 72px 16px;
+  text-align: center;
+  border: 2px dashed #d5d9e0;
+  border-radius: 16px;
+}
+.dx-empty h2 {
+  font-size: 19px;
+}
+.dx-empty p {
+  margin: 8px 0 0;
+  color: #667085;
+}
+
+/* ---------- sections and grids ---------- */
+.dx-section-title {
+  margin-bottom: 12px !important;
+  font-size: 15px;
+  font-weight: 600;
+  color: #667085;
+}
+.dx-section-gap {
+  margin-top: 32px;
+}
+.dx-grid {
+  display: grid;
+  gap: 12px;
+}
+.dx-grid-folders {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.dx-grid-files {
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 16px;
+}
+
+.dx-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ---------- folder cards ---------- */
+.dx-folder {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding-right: 8px;
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.dx-folder:hover {
+  border-color: #c3cde0;
+  background: #fafbff;
+}
+.dx-folder-open {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 8px 0 14px;
+  border-radius: 12px;
+  text-align: left;
+}
+.dx-folder-icon {
+  display: flex;
+  color: #e0a21b;
+}
+
+/* ---------- file cards ---------- */
+.dx-file {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+}
+.dx-file-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 120px;
+}
+.dx-kind {
+  font-size: 13px;
+  font-weight: 600;
+}
+.dx-file-body {
+  padding: 12px 14px 4px;
+  min-width: 0;
+}
+.dx-meta {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: #667085;
+}
+.dx-file-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 12px;
+}
+
+.kind-image   { background: #e3f6ee; color: #0e9f6e; }
+.kind-video   { background: #efe8fd; color: #7c3aed; }
+.kind-audio   { background: #fce7f1; color: #db2777; }
+.kind-pdf     { background: #fde8e8; color: #dc2626; }
+.kind-text    { background: #eef0f3; color: #475467; }
+.kind-archive { background: #fdf0dc; color: #b45309; }
+.kind-other   { background: #e8effd; color: #2563eb; }
+
+/* ---------- small screens ---------- */
+@media (max-width: 640px) {
+  .dx-main {
+    padding: 20px 16px 48px;
+  }
+  .dx-actions {
+    width: 100%;
+  }
+  .dx-newfolder {
+    flex: 1;
+  }
+  .dx-newfolder input {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dx-page * {
+    transition: none !important;
+  }
+}
